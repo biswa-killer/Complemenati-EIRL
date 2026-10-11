@@ -74,40 +74,8 @@ float GetLuminance(vec3 color) {
 	return dot(color,vec3(0.299, 0.587, 0.114));
 }
 
-vec3 RoundSunMoon(vec3 nViewPos, vec3 sunColor, vec3 moonColor, float NdotU, float cosS) {
-	float isMoon = float(cosS < 0.0);
-	float sun = pow(abs(cosS), 2600.0 * isMoon + 1800.0 * (1 - isMoon));
-
-	if (isMoon > 0.0) {
-		if (moonPhase >= 1) {
-			float moonPhaseOffset = float(!(moonPhase == 4));
-			if (moonPhase > 4) moonPhaseOffset *= -1.0;
-
-			float ang = fract(timeAngle - (0.25 + 0.0035 * moonPhaseOffset));
-			ang = (ang + (cos(ang * 3.14159265358979) * -0.5 + 0.5 - ang) / 3.0) * 6.28318530717959;
-			vec2 sunRotationData2 = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
-			vec3 rawSunVec2 = (gbufferModelView * vec4(vec3(-sin(ang), cos(ang) * sunRotationData2) * 2000.0, 1.0)).xyz;
-		
-			float moonPhaseCosS = dot(nViewPos, normalize(rawSunVec2.xyz));
-			moonPhaseCosS = pow(abs(moonPhaseCosS), 750.0);
-			sun = mix(sun, 0.0, min(moonPhaseCosS * 2.0, 1.0));
-		}
-	}
-
-	#ifdef SUN_MOON_HORIZON
-		float horizonFactor = clamp((NdotU+0.0025)*20, 0.0, 1.0);
-		sun *= horizonFactor;
-		moonColor *= 1.0 - sunVisibility;
-		sunColor *= sunVisibility;
-	#endif
-
-	vec3 sunMoonCol = mix(moonColor, sunColor, float(cosS > 0.0));
-
-	vec3 finalSunMoon = sun * sunMoonCol * 32.0;
-	finalSunMoon = pow(finalSunMoon, vec3(2.0 - min(finalSunMoon.r + finalSunMoon.g + finalSunMoon.b, 1.0)));
-
-	return finalSunMoon;
-}
+// V4's RoundSunMoon() has been removed. The sun/moon disc is now drawn in main()
+// using the Complementary Reimagined r5.9.3 Unbound round sun/moon algorithm.
 
 float GetStarNoise(vec2 pos) {
 	return fract(sin(dot(pos, vec2(12.9898, 4.1414))) * 43758.54953);
@@ -213,6 +181,7 @@ vec3 GetGalaxy(vec3 viewPos, float NdotU, float cosS, vec3 lightNight) {
 #include "/lib/atmospherics/skyboxEffects.glsl"
 #endif
 #include "/lib/atmospherics/sky.glsl"
+#define ALLOW_BLOOD_MOON_GLARE // enable Blood Moon tint in the sky glare (skybasic has worldDay/moonPhase)
 #include "/lib/atmospherics/sunGlare.glsl"
 
 //Program//
@@ -247,22 +216,67 @@ void main() {
 		#endif
 		albedo.rgb += galaxy;
 		
-		#ifdef ROUND_SUN_MOON
-			vec3 sunColor = vec3(0.9, 0.35, 0.05);
-			if (isEyeInWater == 1) sunColor = 2.0 * normalize(underwaterColor.rgb);
-			vec3 moonColor = vec3(12.0, 13.8, 15.9) / 35.7;
-			
-			vec3 roundSunMoon = RoundSunMoon(nViewPos, sunColor, moonColor, NdotU, cosS);
-
-			#ifdef CLOUDS
-				roundSunMoon *= pow2(pow2(pow2(pow2(pow2(1.0 - cloudMaskR * cloudMaskR * rainStrengthS)))));
-				//This should still be faster than pow()
-
-				roundSunMoon *= pow2(1.0 - rainStrengthS);
+		#ifdef ROUND_SUN_MOON // Unbound round sun/moon (SUN_MOON_STYLE 2/3), ported from Complementary Reimagined r5.9.3
+			float absVdotS = abs(cosS);
+			float SdotU = dot(sunVec, upVec);
+			#if SUN_MOON_STYLE == 2
+				float sunSizeFactor1 = 0.9975;
+				float sunSizeFactor2 = 400.0;
+				float moonCrescentOffset = 0.0055;
+				float moonPhaseFactor1 = 2.45;
+				float moonPhaseFactor2 = 750.0;
 			#else
-				roundSunMoon *= 1.0 - max(rainStrength, rainStrengthS);
+				float sunSizeFactor1 = 0.9983;
+				float sunSizeFactor2 = 588.235;
+				float moonCrescentOffset = 0.0042;
+				float moonPhaseFactor1 = 2.2;
+				float moonPhaseFactor2 = 1000.0;
 			#endif
-			albedo.rgb += roundSunMoon;
+			if (absVdotS > sunSizeFactor1) {
+				float sunMoonMixer = sqrt1(sunSizeFactor2 * (absVdotS - sunSizeFactor1));
+				#ifdef SUN_MOON_DURING_RAIN
+					sunMoonMixer *= 1.0 - 0.4 * rainStrengthS;
+				#else
+					sunMoonMixer *= 1.0 - rainStrengthS;
+				#endif
+				if (cosS > 0.0) { // Sun
+					sunMoonMixer = pow2(sunMoonMixer) * GetHorizonFactor(SdotU);
+					float sunBrightness = 25.0;
+					albedo.rgb = mix(albedo.rgb, vec3(0.9, 0.5, 0.3) * sunBrightness, sunMoonMixer);
+				} else { // Moon
+					float horizonFactor = GetHorizonFactor(-SdotU);
+					sunMoonMixer = max0(sunMoonMixer - 0.25) * 1.33333 * horizonFactor;
+					vec3 moonDirWPos = normalize((gbufferModelViewInverse * vec4(viewPos.xyz * 1000.0, 1.0)).xyz);
+					vec2 moonNoiseCoord = (moonDirWPos / (moonDirWPos.y + length(moonDirWPos.xz))).xz * 0.5 + 0.617;
+					float moonNoise = texture2D(noisetex, moonNoiseCoord).g
+					                + texture2D(noisetex, moonNoiseCoord * 2.5).g * 0.7
+					                + texture2D(noisetex, moonNoiseCoord * 5.0).g * 0.5;
+					moonNoise = max0(moonNoise - 0.75) * 1.7;
+					vec3 moonColor = vec3(0.38, 0.4, 0.5);
+					#if BLOOD_MOON > 0
+						moonColor = mix(moonColor, vec3(0.4588, 0.149, 0.149) * 1.5, getBloodMoonVisibility(sunVisibility, worldDay, moonPhase));
+					#endif
+					float nightFactorM = 1.0 - sunVisibility;
+					moonColor *= (1.2 - (0.2 + 0.2 * sqrt1(nightFactorM)) * moonNoise);
+					if (moonPhase >= 1) {
+						float moonPhaseOffset = 0.0;
+						if (moonPhase != 4) {
+							moonPhaseOffset = moonCrescentOffset;
+							moonColor *= 8.5;
+						} else moonColor *= 10.0;
+						if (moonPhase > 4) moonPhaseOffset = -moonPhaseOffset;
+
+						float ang = fract(timeAngle - (0.25 + moonPhaseOffset));
+						ang = (ang + (cos(ang * 3.14159265358979) * -0.5 + 0.5 - ang) / 3.0) * 6.28318530717959;
+						vec2 sunRotationData2 = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
+						vec3 rawSunVec2 = (gbufferModelView * vec4(vec3(-sin(ang), cos(ang) * sunRotationData2) * 2000.0, 1.0)).xyz;
+
+						float moonPhaseVdosS = dot(nViewPos, normalize(rawSunVec2.xyz));
+						sunMoonMixer *= pow2(1.0 - min1(pow(abs(moonPhaseVdosS), moonPhaseFactor2) * moonPhaseFactor1));
+					} else moonColor *= 4.0;
+					albedo.rgb = mix(albedo.rgb, moonColor, sunMoonMixer);
+				}
+			}
 		#endif
 
 		albedo = SunGlare(albedo, nViewPos, lightCol);

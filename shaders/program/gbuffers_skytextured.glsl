@@ -30,6 +30,7 @@ uniform sampler2D texture;
 
 #if defined OVERWORLD && defined VANILLA_SKYBOX
 	uniform int worldDay;
+	uniform int moonPhase;
 
 	uniform float nightVision;
 	uniform float rainStrengthS;
@@ -83,17 +84,28 @@ void main() {
 		viewPos /= viewPos.w;
 		vec3 nViewPos = normalize(viewPos.xyz);
 
-		#ifdef SUN_MOON_HORIZON
-			float NdotU = dot(nViewPos, upVec);
+		float VdotU = dot(nViewPos, upVec);
+		float VdotS = dot(nViewPos, sunVec);
+		float noonFactorM = pow2(pow2(sunVisibility));
 
-			#if MC_VERSION >= 11700
-				if (renderStage > 3)
-			#endif
-			albedo.a *= clamp((NdotU+0.02)*10, 0.0, 1.0);
-		#endif
-		
 		albedo *= color;
-		albedo.rgb = pow(albedo.rgb, vec3(2.2 + sunVisibility * 2.2)) * (1.0 + sunVisibility * 4.0) * SKYBOX_BRIGHTNESS * albedo.a;
+
+		// Reimagined style (SUN_MOON_STYLE 1): recolor the vanilla sun/moon discs, ported from Complementary Reimagined r5.9.3
+		if (VdotS > 0.9) { // Sun
+			albedo.rgb = vec3(pow(dot(albedo.rgb, albedo.rgb) * 0.45, 6.0 - 5.0 * rainStrengthS));
+			albedo.rgb *= mix(vec3(1.1, 0.55, 0.0), vec3(0.35), rainStrengthS * 0.75) * 4.5;
+			albedo.rgb *= 0.25 + 0.75 * (sunVisibility * sunVisibility) + 0.5 * noonFactorM;
+			albedo.rgb *= GetHorizonFactor(VdotU) * albedo.a;
+		} else if (VdotS < -0.9) { // Moon
+			albedo.rgb *= smoothstep1(min1(length(albedo.rgb))) * 1.3;
+			#if BLOOD_MOON > 0
+				float moonLum = dot(albedo.rgb, vec3(0.299, 0.587, 0.114));
+				albedo.rgb = mix(albedo.rgb, pow2(moonLum) * vec3(0.702, 0.0, 0.0) * 1.7, getBloodMoonVisibility(sunVisibility, worldDay, moonPhase));
+			#endif
+			albedo.rgb *= GetHorizonFactor(VdotU) * albedo.a;
+		} else { // Custom resource-pack sky / overlays
+			albedo.rgb = pow(albedo.rgb, vec3(2.2 + sunVisibility * 2.2)) * (1.0 + sunVisibility * 4.0) * SKYBOX_BRIGHTNESS * albedo.a;
+		}
 	#else
 		vec4 albedo = vec4(0.0);
 	#endif

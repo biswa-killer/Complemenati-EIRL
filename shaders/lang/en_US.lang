@@ -82,6 +82,9 @@ screen.CG_T=Color Grading Tint
 
 screen.SKY=Sky
 screen.SKY.comment=Effects that are applied to the sky.
+
+screen.SUN_MOON_SETTINGS=Sun & Moon
+screen.SUN_MOON_SETTINGS.comment=All sun and moon settings: style, path angle, horizon fade, visibility during rain, sun/moon glare, and the Blood Moon.
 screen.CLOUDS=Cloud Settings
 screen.CLOUDS.comment=Settings about the shader-based clouds.
 screen.FOG=Fog Settings
@@ -817,11 +820,11 @@ value.SELECTION_MODE.2=Versatile
 value.SELECTION_MODE.4=Rainbow
 value.SELECTION_MODE.3=§cDisabled
 
-option.SUN_GLARE=Sun Glare
-option.SUN_GLARE.comment=Enables Sun Glare. 
+option.SUN_GLARE_AMOUNT=Sun Glare Amount
+option.SUN_GLARE_AMOUNT.comment=Adjusts the amount of glare/bloom around the sun in the sky.
 
-option.SUN_GLARE_STRENGTH=Sun Glare Strength
-option.SUN_GLARE_STRENGTH.comment=Adjusts the extra sky brightness around the sun.
+option.MOON_GLARE_AMOUNT=Moon Glare Amount
+option.MOON_GLARE_AMOUNT.comment=Adjusts the amount of glare/bloom around the moon in the sky.
 
 option.CLOUDS=Shader Clouds
 option.CLOUDS.comment=Enables shader-based clouds. §e[*]§r When this is disabled, "Clouds" option in Video Settings will decide if Vanilla Clouds should appear or not. §a[+]§r This effect benefits from TAA. §c[-]§r Disabling this can cause problems with some mods.
@@ -878,14 +881,26 @@ option.SUNSET_STARS.comment=Changes if stars will be visible during sunrise/suns
 option.STAR_BRIGHTNESS=Star Brightness
 option.STAR_BRIGHTNESS.comment=Adjusts the brightness of stars.
 
-option.ROUND_SUN_MOON=Shader Sun/Moon
-option.ROUND_SUN_MOON.comment=Enables round sun & moon. §e[*]§r Disable this option and enable "Vanilla Sun/Moon/Overlay" if you only want the vanilla sun/moon
+option.SUN_MOON_STYLE_DEFINE=Sun & Moon Style
+option.SUN_MOON_STYLE_DEFINE.comment=Selects the visual style of the sun and moon. §e[*]§r Reimagined recolors the vanilla sun/moon textures; Unbound draws a procedural round sun/moon. §c[-]§r May interact incorrectly with some resource packs due to sun/moon/skybox differences.
+value.SUN_MOON_STYLE_DEFINE.1=Reimagined
+value.SUN_MOON_STYLE_DEFINE.2=Unbound
+value.SUN_MOON_STYLE_DEFINE.3=Unbound - Smaller
 
 option.SKYBOX_BRIGHTNESS=Vanilla Skybox Brightness
 option.SKYBOX_BRIGHTNESS.comment=Adjusts skybox brightness.
 
-option.VANILLA_SKYBOX=Vanilla Sun/Moon/Overlay
-option.VANILLA_SKYBOX.comment=Enables vanilla sky overlays which include square sun/moon and custom resource pack skies. §e[*]§r Disable "Shader Sun/Moon" option if you want to use vanilla sun/moon. §c[-]§r Changing this can cause problems with some mods.
+option.SUN_MOON_DURING_RAIN=Sun/Moon During Rain
+option.SUN_MOON_DURING_RAIN.comment=Keeps the sun/moon and their glare more visible while it is raining.
+
+option.BLOOD_MOON=Blood Moon
+option.BLOOD_MOON.comment=Enables Blood Moons, which occur every X Minecraft nights set by this value. If set above "Every Night", Blood Moons don't occur on the first night or on a new moon.
+value.BLOOD_MOON.0=OFF
+value.BLOOD_MOON.1=Every Night
+suffix.BLOOD_MOON= Nights
+
+screen.BLOOD_MOON_SETTINGS=Blood Moon Settings
+screen.BLOOD_MOON_SETTINGS.comment=Settings for the Blood Moon effect on the sun/moon and sky glare.
 
 option.SUN_MOON_HORIZON=Sun/Moon Horizon
 option.SUN_MOON_HORIZON.comment=Makes the sun/moon disappear below the horizon level.

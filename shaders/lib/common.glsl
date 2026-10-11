@@ -181,8 +181,8 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
     #define AUTO_EXPOSURE 0 //[0 1 2]
     #define VIGNETTE 1 //[0 1 2]
     #define VIGNETTE_STRENGTH 0.50 //[0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00 2.25 2.50 2.75 3.00 4.00 5.00]
-    #define SUN_GLARE
-    #define SUN_GLARE_STRENGTH 1.0 //[0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 4.0 5.0]
+    #define SUN_GLARE_AMOUNT 10 //[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
+    #define MOON_GLARE_AMOUNT 10 //[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
 
     //#define COLOR_GRADING
     #define TONEMAP_EXPOSURE 5.6 //[1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.2 4.4 4.6 4.8 5.0 5.2 5.4 5.6 5.8 6.0 6.2 6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.8 8.0 8.2 8.4 8.6 8.8 9.0 9.2 9.4 9.6 9.8 10.0 10.2 10.4 10.6 10.8 11.0 11.2 11.4 11.6 11.8 12.0 12.2 12.4 12.6 12.8 13.0 13.2 13.4 13.6 13.8 14.0 14.2 14.4 14.6 14.8 15.0 15.2 15.4 15.6 15.8 16.0]
@@ -348,10 +348,22 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
     #define RAINBOW_DIAMETER 1.00 //[0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00 3.05 3.10 3.15 3.20 3.25 3.30 3.35 3.40 3.45 3.50 3.55 3.60 3.65 3.70 3.75 3.80 3.85 3.90 3.95 4.00 4.25 4.50 4.75 5.00 5.25 5.50 5.75 6.00 6.25 6.50 6.75 7.00 7.50 8.00]
     #define RAINBOW_STYLE 1 //[1 2]
     #define RAINBOW_AFTER_RAIN_CHECK
-    #define ROUND_SUN_MOON
-    //#define VANILLA_SKYBOX
+    //Sun & Moon (ported from Complementary Reimagined r5.9.3)//
+    #define SUN_MOON_STYLE_DEFINE 2 //[1 2 3]
     #define SUN_MOON_HORIZON
+    #define SUN_MOON_DURING_RAIN
+    #define BLOOD_MOON 0 //[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30]
     #define SKYBOX_BRIGHTNESS 2.00 //[0.01 0.02 0.03 0.05 0.07 0.10 0.15 0.20 0.25 0.35 0.40 0.45 0.50 0.60 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00]
+
+    // Internal: map the V5-style Sun/Moon style selector onto this pack's existing render paths.
+    // Style 1 = Reimagined (recolored vanilla sun/moon textures) -> VANILLA_SKYBOX path.
+    // Style 2 = Unbound, Style 3 = Unbound smaller (procedural round sun/moon) -> ROUND_SUN_MOON path.
+    #define SUN_MOON_STYLE SUN_MOON_STYLE_DEFINE
+    #if SUN_MOON_STYLE == 1
+        #define VANILLA_SKYBOX
+    #else
+        #define ROUND_SUN_MOON
+    #endif
 
     #define SKY_DAY 1.00 //[0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00 3.05 3.10 3.15 3.20 3.25 3.30 3.35 3.40 3.45 3.50 3.55 3.60 3.65 3.70 3.75 3.80 3.85 3.90 3.95 4.00 4.25 4.50 4.75 5.00 5.25 5.50 5.75 6.00 6.25 6.50 6.75 7.00 7.50 8.00 8.50 9.00 9.50 10.0 11.0 12.0 13.0 14.0 15.0 16.0 18.0 20.0 22.0 24.0 28.0 30.0 32.0]
     #define SKY_NOON 1.00 //[0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00 3.05 3.10 3.15 3.20 3.25 3.30 3.35 3.40 3.45 3.50 3.55 3.60 3.65 3.70 3.75 3.80 3.85 3.90 3.95 4.00 4.25 4.50 4.75 5.00 5.25 5.50 5.75 6.00 6.25 6.50 6.75 7.00 7.50 8.00 8.50 9.00 9.50 10.0 11.0 12.0 13.0 14.0 15.0 16.0 18.0 20.0 22.0 24.0 28.0 30.0 32.0]
@@ -650,6 +662,35 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
     }
     vec4 pow2(vec4 x) {
         return x * x;
+    }
+
+    //Sun & Moon helpers (ported from Complementary Reimagined r5.9.3)//
+    float GetHorizonFactor(float XdotU) {
+        #ifdef SUN_MOON_HORIZON
+            float horizon = clamp((XdotU + 0.1) * 10.0, 0.0, 1.0);
+            horizon *= horizon;
+            return horizon * horizon * (3.0 - 2.0 * horizon);
+        #else
+            float horizon = min(XdotU + 1.0, 1.0);
+            horizon *= horizon;
+            horizon *= horizon;
+            return horizon * horizon;
+        #endif
+    }
+
+    float getBloodMoonVisibility(float sunVisibilityIn, int worldDayIn, int moonPhaseIn) {
+        #if BLOOD_MOON == 0
+            return 0.0;
+        #else
+            // BLOOD_MOON = how many nights between blood moons (1 = every night).
+            float visibility = 1.0 - sunVisibilityIn;
+            if ((worldDayIn % BLOOD_MOON) != 0) visibility = 0.0;
+            #if BLOOD_MOON > 1
+                visibility *= float(min(worldDayIn, 1)); // no blood moon on day 0
+                if (moonPhaseIn == 4) visibility = 0.0;  // no blood moon on new moon
+            #endif
+            return clamp01(visibility);
+        #endif
     }
 
     float pow1_5(float x) { // Faster pow(x, 1.5) approximation (that isn't accurate at all) if x is between 0 and 1
