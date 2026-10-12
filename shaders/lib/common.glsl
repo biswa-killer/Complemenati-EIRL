@@ -603,6 +603,8 @@ Complementary Shaders by EminGT, based on BSL Shaders by Capt Tatsu
     #endif
     #ifdef WATER_TRANSLUCENT_CLOUD_REF
     #endif
+    #ifdef IPBR_PARTICLE_FEATURES
+    #endif
 
 //Very Common Variables//
     uniform int worldTime;
