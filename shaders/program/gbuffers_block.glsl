@@ -88,9 +88,13 @@ uniform sampler2D texture;
 	uniform sampler2D noisetex;
 #endif
 
-#if defined ADV_MAT && !defined COMPBR
-	uniform sampler2D specular;
-	uniform sampler2D normals;
+#if defined ADV_MAT
+	#if !defined COMPBR || IPBR_EMISSIVE_MODE != 1
+		uniform sampler2D specular;
+	#endif
+	#ifndef COMPBR
+		uniform sampler2D normals;
+	#endif
 #endif
 
 #ifdef COLORED_LIGHT
@@ -168,6 +172,10 @@ float GetLuminance(vec3 color) {
 
 	#ifdef NOISY_TEXTURES
 		#include "/lib/surface/noiseCoatedTextures.glsl"
+	#endif
+
+	#if IPBR_EMISSIVE_MODE != 1
+		#include "/lib/surface/customEmission.glsl"
 	#endif
 #endif
 
@@ -356,6 +364,10 @@ void main() {
 			#endif
 		}
 		
+		#if IPBR_EMISSIVE_MODE != 1 && defined COMPBR
+			emissive = GetCustomEmissionForIPBR(texCoord, emissive);
+		#endif
+
 		vec3 shadow = vec3(0.0);
 		vec3 lightAlbedo = vec3(0.0);
 		GetLighting(albedo.rgb, shadow, lightAlbedo, viewPos, lViewPos, worldPos, lightmap, color.a, NdotL, quarterNdotU,

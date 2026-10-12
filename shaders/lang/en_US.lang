@@ -16,10 +16,8 @@ screen.ABOUT.comment=Heavily based on "BSL Shaders". Thanks so much to Capt Tats
 
 screen.WORLD=World
 screen.WORLD.comment=Effects that are applied to the world.
-screen.WORLD_CURVATURE_CONFIG=World Curvature Settings
-screen.WORLD_CURVATURE_CONFIG.comment=Settings about the world curvature effect.
 
-screen.MATERIALS=Materials
+screen.MATERIALS=Materials / Eye Glow
 screen.MATERIALS.comment=Settings about advanced materials.
 screen.COMPBR=Integrated PBR Settings
 screen.COMPBR.comment=Settings about the integrated advanced material properties. §e[*]§r Settings here only work if RP Support is set to Integrated PBR+
@@ -27,6 +25,33 @@ screen.COMPBRORES=Emissive Ores
 screen.COMPBRORES.comment=Settings about glowing ores.
 screen.COMPBRMISC=More Integrated PBR Settings
 screen.COMPBRMISC.comment=Rest of the Integrated PBR settings.
+screen.OTHER_IPBR_SETTINGS=IPBR+ / Eye Glow
+screen.OTHER_IPBR_SETTINGS.comment=Additional Integrated PBR+ settings for emissives, particles, and glass.
+
+option.IPBR_EMISSIVE_MODE=Eye Glow
+option.IPBR_EMISSIVE_MODE.comment=Determines the handling of emissives within Integrated PBR+. Choosing the labPBR or seuspbr options allow compatible resource packs to completely override IPBR+ emissives on blocks and entities that have specular textures attached to them.
+value.IPBR_EMISSIVE_MODE.1=IPBR+ Only
+value.IPBR_EMISSIVE_MODE.3=labPBR > IPBR+
+value.IPBR_EMISSIVE_MODE.2=Eye Glow
+
+option.IPBR_PARTICLE_FEATURES=IPBR+ Particle Features
+option.IPBR_PARTICLE_FEATURES.comment=Enables several features for particles, including things like glowing lava particles, glowing redstone/ender particles, and improved campfire smoke.
+
+option.IPBR_COMPAT_MODE_DEFINE=IPBR+ Compatibility Mode
+option.IPBR_COMPAT_MODE_DEFINE.comment=Changes how some IPBR+ features are calculated to be less aggressive in order to cause fewer problems with resource packs or mods.
+
+option.FANCY_GLASS=Improved Glass
+option.FANCY_GLASS.comment=Improves regular glass by adding a translucent tinted layer and reflections to it. §e[*]§r Requires Iris.
+
+option.MORE_REFLECTIVE_DISTANT_GLASS=More Reflective Distant Glass
+option.MORE_REFLECTIVE_DISTANT_GLASS.comment=Increases the reflectiveness and opacity of distant glass to make buildings with glass windows look nicer.
+
+option.MIRROR_TINTED_GLASS=Mirror-like Tinted Glass
+option.MIRROR_TINTED_GLASS.comment=Increases the reflectiveness and opacity of Tinted Glass blocks.
+value.MIRROR_TINTED_GLASS.0=OFF
+value.MIRROR_TINTED_GLASS.35=35% Mirror
+value.MIRROR_TINTED_GLASS.70=70% Mirror
+value.MIRROR_TINTED_GLASS.100=100% Mirror
 screen.EMISSIVES=Emissive Settings
 screen.EMISSIVES.comment=Settings about how glowy something is.
 screen.NORMALS=Normalmap Related Settings
@@ -34,10 +59,6 @@ screen.NORMALS.comment=Settings about effects that use normal mapping. §e[*]§r
 
 screen.OTHER=Other
 screen.OTHER.comment=Effects that don't fit into any other category.
-screen.SELECTION_BOX=Selection Outline Settings
-screen.SELECTION_BOX.comment=Settings to customize the outline box that appears when you look at a block.
-screen.STARTER=Starter Settings
-screen.STARTER.comment=Effects that show up only when you first enter a world.
 
 screen.INTERNAL=Internal / Debug
 screen.INTERNAL.comment=Settings about some internal features and tools to debug.
@@ -109,9 +130,6 @@ screen.LIGHT_SHAFT_CONFIG.comment=Settings about light shafts.
 
 screen.REFLECTION_CONFIG=Reflection Settings
 screen.REFLECTION_CONFIG.comment=Settings about reflections.
-
-screen.RAIN_REF_CONFIG=Rain Puddle Settings
-screen.RAIN_REF_CONFIG.comment=Settings about rain puddles.
 
 screen.AURORA_CONFIG=Aurora Borealis Settings
 screen.AURORA_CONFIG.comment=Settings about aurora borealis.
@@ -245,9 +263,6 @@ option.PROMO_OUTLINE_THICKNESS.comment=Adjusts how thick alternative outline wil
 option.OUTLINE_ON_EVERYTHING=Apply Outlines To Everything
 option.OUTLINE_ON_EVERYTHING.comment=Enabling this will make outlines appear on stuff like vanilla clouds, translucents, and particles.
 
-option.WHITE_WORLD=White World
-option.WHITE_WORLD.comment=Replaces textures with flat white color.
-
 option.NIGHT_TWILIGHT_FOREST=Night Twilight Forest
 option.NIGHT_TWILIGHT_FOREST.comment=Changes the Twilight Forest from day to night.
 
@@ -284,12 +299,6 @@ option.GBUFFER_CODING.comment=Color codes different shader programs for debuggin
 option.SHOW_RAY_TRACING=Highlight Ray Tracing
 option.SHOW_RAY_TRACING.comment=Highlights ray-traced pixels. Doesn't include water since it's always ray-traced.
 
-option.METALLIC_WORLD=Metallic World
-option.METALLIC_WORLD.comment=Makes all blocks metallic. §e[*]§r RP Support must be set to Integrated PBR+
-
-option.WAVING_EVERYTHING=Waving Everything
-option.WAVING_EVERYTHING.comment=Makes everything wavy.
-
 option.EXTRA_PARTICLE_EMISSION=Force Glowing Particles
 option.EXTRA_PARTICLE_EMISSION.comment=Forces emission on all "colored particles".
 
@@ -312,11 +321,6 @@ value.NETHER_REFRACT.3=Intense
 option.GLINT_BRIGHTNESS=Enchantment Glint Brightness
 option.GLINT_BRIGHTNESS.comment=Adjusts the intensity of enchantment glint on enchanted items.
 
-option.NIGHT_VISION=Night Vision Style
-option.NIGHT_VISION.comment=Changes how the night vision status effect works.
-value.NIGHT_VISION.1=Normal
-value.NIGHT_VISION.2=Military
-
 option.VANILLA_UNDERLAVA_COLOR=Vanilla Lava Fog Color
 option.VANILLA_UNDERLAVA_COLOR.comment=Changes the under-lava fog color to the vanilla one.
 
@@ -331,9 +335,6 @@ option.RANDOM_BLOCKLIGHT.comment=Picks random colors for block lighting using wo
 
 option.COLORED_LIGHT_DEFINE=Scene-Aware Colored Lighting
 option.COLORED_LIGHT_DEFINE.comment=Changes the blocklight color using light source data that is/was present on the screen, or the player's hand. §e[*]§r PBR must be enabled. §e[*]§r Disabled on Compatibility Mode. §c[-]§r Performance impact. §c[-]§r Doesn't work in older Optifine/Iris versions. §c[-]§r May not work on Apple devices.
-
-option.OVERDRAW=Overscan
-option.OVERDRAW.comment=Used to get more screenspace reflection information for the final image. §e[*]§r Set your render quality to 1.5x in the shaders menu. §e[*]§r Increase your Field Of View like this:. Normal -> 93. 80 -> 103. 90+ -> Quake Pro.
 
 option.WAVING_FOLIAGE=Waving Foliage
 option.WAVING_FOLIAGE.comment=Enables waving for grass, double plants, flowers, etc.
@@ -367,12 +368,6 @@ option.NETHER_FOG.comment=Enables border fog in The Nether dimension. §e[*]§r 
 option.NETHER_SMOKE=Nether Smoke
 option.NETHER_SMOKE.comment=Adds a smoke effect to the fog in The Nether. §e[*]§r "Border Fog" and "Nether Fog" must be enabled. §c[-]§r Isn't very perfect.
 
-option.RAIN_REF_BIOME_CHECK=Rain Puddle Biome Check
-option.RAIN_REF_BIOME_CHECK.comment=Disabling this makes rain puddles appear on all biomes including deserts.
-
-option.RAIN_REF_FORCED=Force Rain Puddles
-option.RAIN_REF_FORCED.comment=Enabling this makes rain puddles appear even when it isn't raining.
-
 option.NEBULA_COMPRESSION=Nebula Compression
 option.NEBULA_COMPRESSION.comment=Adjusts nebula compression.
 
@@ -397,13 +392,6 @@ option.NEBULA_ORANGE_BRIGHTNESS.comment=Adjusts the brightness of orange color o
 option.NEBULA_SPEED=Nebula Speed
 option.NEBULA_SPEED.comment=Adjusts the animation speed of the nebula.
 
-option.SHOW_LIGHT_LEVELS=Show Light Levels
-option.SHOW_LIGHT_LEVELS.comment=In Overworld: Yellow means mobs can spawn during night time, red means mobs can spawn anytime. In The Nether and The End: Yellow means some mobs can spawn, red means all mobs can spawn. §e[*]§r Disable Smooth Lighting for precise results.
-value.SHOW_LIGHT_LEVELS.0=OFF
-value.SHOW_LIGHT_LEVELS.1=Hold Spider Eye
-value.SHOW_LIGHT_LEVELS.2=Always ON
-value.SHOW_LIGHT_LEVELS.3=Hold Light Source
-
 option.WRONG_MIPMAP_FIX=Broken Mipmap Fix
 option.WRONG_MIPMAP_FIX.comment=Disables mipmap levels on all specular maps and the shadowmap.
 
@@ -418,12 +406,6 @@ option.SPECULAR_SKY_REF.comment=Allows opaque surfaces to render subtle sky refl
 
 option.DOUBLE_QUALITY_ROUGH_REF=Double Reflection Quality
 option.DOUBLE_QUALITY_ROUGH_REF.comment=Doubles the reflection samples especially to make rough surfaces look better. §e[*]§r "Reflection Roughness" must be enabled. §c[-]§r Performance impact.
-
-option.REFLECTION_RAIN=Rain Puddles
-option.REFLECTION_RAIN.comment=Enables water puddles that appear during rain. §e[*]§r PBR and Specular Reflections must be enabled for this to work. §c[-]§r Puddles can appear in incorrect spots. §c[-]§r May not work in Minecraft versions below 1.16.5.
-
-option.REFLECTION_RAIN_COVERAGE=Rain Puddle Coverage
-option.REFLECTION_RAIN_COVERAGE.comment=Adjusts how much of the terrain will be covered in puddles during rain.
 
 option.LAVA_INTENSITY=Lava Brightness
 option.LAVA_INTENSITY.comment=Adjusts how bright lava will glow. Also effects magma block.
@@ -569,10 +551,6 @@ value.VIGNETTE.2=White
 
 option.VIGNETTE_STRENGTH=Vignette Strength
 option.VIGNETTE_STRENGTH.comment=Adjusts vignette intensity.
-
-option.THE_FORBIDDEN_OPTION=The Forbidden Option
-option.THE_FORBIDDEN_OPTION.comment=Do not enable this option or you will literally breathe air.
-value.THE_FORBIDDEN_OPTION.0=OFF
 
 option.COLOR_GRADING=Color Grading
 option.COLOR_GRADING.comment=Enables color grading.
@@ -769,6 +747,8 @@ option.WATER_I=Intensity
 option.WATER_OPACITY=Water Opacity
 option.WATER_FOG=Underwater Fog Distance
 option.WATER_FOG.comment=Changes the underwater fog amount.
+option.WATER_FOAM_I=Water Foam Intensity
+option.WATER_FOAM_I.comment=Determines the opacity of foam seen on water edges where water meets blocks. Ported from Complementary Reimagined.
 option.UNDERWATER_R=Underwater Red Reduction
 option.UNDERWATER_G=Underwater Green Reduction
 option.UNDERWATER_B=Underwater Blue Reduction
@@ -798,11 +778,6 @@ option.NETHER_I.comment=Adjusts the brightness of The Nether dimension. §e[*]§
 option.END_I=The End Color Intensity
 option.END_I.comment=Adjusts the brightness of The End dimension. §e[*]§r Don't forget the Brightness slider in Video Settings also affects The End brightness.
 
-option.SELECTION_R=Red
-option.SELECTION_G=Green
-option.SELECTION_B=Blue
-option.SELECTION_I=Intensity
-
 option.AURORA_UP_R=Upper Section - Red
 option.AURORA_UP_G=Upper Section - Green
 option.AURORA_UP_B=Upper Section - Blue
@@ -811,14 +786,6 @@ option.AURORA_DOWN_R=Lower Section - Red
 option.AURORA_DOWN_G=Lower Section - Green
 option.AURORA_DOWN_B=Lower Section - Blue
 option.AURORA_DOWN_I=Lower Section - Intensity
-
-option.SELECTION_MODE=Selection Mode
-option.SELECTION_MODE.comment=Changes the outline that appears when looking at a block. §c[-]§r May not work on some devices or Minecraft versions. Default: Recommended for mod compatibility. Select Color: Choose the color using the sliders here. Versatile: Varying color depending on the block, PBR must be enabled for this to work. Rainbow: The selection color changes over time.
-value.SELECTION_MODE.0=Default
-value.SELECTION_MODE.1=Select Color
-value.SELECTION_MODE.2=Versatile
-value.SELECTION_MODE.4=Rainbow
-value.SELECTION_MODE.3=§cDisabled
 
 option.SUN_GLARE_AMOUNT=Sun Glare Amount
 option.SUN_GLARE_AMOUNT.comment=Adjusts the amount of glare/bloom around the sun in the sky.
@@ -1155,16 +1122,6 @@ option.FOG2_RAIN_ALTITUDE_M.comment=Determines how much the altitude factor is g
 option.FOG2_RAIN_DISTANCE_M=Rain Fog Distance Multiplier
 option.FOG2_RAIN_DISTANCE_M.comment=Multiplies the distance value of atmospheric fog during rain. Higher values result in closer fog, lower values result in distant fog.
 
-option.WORLD_CURVATURE=World Curvature
-option.WORLD_CURVATURE.comment=Enables world curvature. §e[*]§r To fix missing chunks, open the shaders.properties and un-comment the frustum culling line.
-
-option.OVERWORLD_CURVATURE_SIZE=Overworld Curvature Size
-value.OVERWORLD_CURVATURE_SIZE.999999=None
-option.NETHER_CURVATURE_SIZE=The Nether Curvature Size
-value.NETHER_CURVATURE_SIZE.999999=None
-option.END_CURVATURE_SIZE=The End Curvature Size
-value.END_CURVATURE_SIZE.999999=None
-
 option.WORLD_TIME_ANIMATION=World Time Animation
 option.WORLD_TIME_ANIMATION.comment=Uses in-game time for moving objects. §a[+]§r Stuff like clouds will be synced with players in the same world when this is enabled. §c[-]§r World time is max 20 fps, which means things can look a slight bit less smooth, but TAA can somewhat help.
 value.WORLD_TIME_ANIMATION.0=§cOFF
@@ -1179,19 +1136,6 @@ option.MIN_LIGHT.comment=Changes the amount of light in very dark areas. §e[*]�
 
 option.ENTITY_EFFECT=Entity Hit Effect
 option.ENTITY_EFFECT.comment=Controls the red glow on entities that appear when they take damage. Also affects creeper blowing animation.
-
-option.WATERMARK=Complementary Overlay
-option.WATERMARK.comment=Shows a "Complementary Shaders" text for some seconds after the first load of the world/server/shaderpack. §e[*]§r The overlay can be changed by entering the shaderpack files -> shaders -> tex, and changing the "overlay.png".
-
-option.WATERMARK_DURATION=Overlay Behaviour
-value.WATERMARK_DURATION.1=Starter
-value.WATERMARK_DURATION.999=Indefinite
-
-option.GRAY_START=Gray Start
-option.GRAY_START.comment=Disables saturation for some seconds during the first load of the world/server/shaderpack.
-
-option.BLURRY_START=Blurry Start
-option.BLURRY_START.comment=Blurs everything for some seconds during the first load of the world/server/shaderpack. §e[*]§r "Bloom" must be enabled.
 
 option.NO_PARTICLES=Disable All Particles
 option.NO_PARTICLES.comment=Disables the rendering of particle effects.

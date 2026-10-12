@@ -99,8 +99,10 @@ uniform sampler2D texture;
 #endif
 
 #ifdef ADV_MAT
-	#ifndef COMPBR
+	#if !defined COMPBR || IPBR_EMISSIVE_MODE != 1
 		uniform sampler2D specular;
+	#endif
+	#ifndef COMPBR
 		uniform sampler2D normals;
 	#endif
 
@@ -199,6 +201,10 @@ float GetLuminance(vec3 color) {
 
 	#ifdef NOISY_TEXTURES
 		#include "/lib/surface/noiseCoatedTextures.glsl"
+	#endif
+
+	#if IPBR_EMISSIVE_MODE != 1
+		#include "/lib/surface/customEmission.glsl"
 	#endif
 #endif
 
@@ -319,6 +325,9 @@ void main() {
 			if (specB > 1.02) {
 				emissive = pow(lAlbedoP, specB) * fract(specB) * 20.0;
 			}
+			#if IPBR_EMISSIVE_MODE != 1
+				emissive = GetCustomEmissionForIPBR(texCoord, emissive);
+			#endif
 
 			//Integrated Smoothness
 			smoothness = specR;

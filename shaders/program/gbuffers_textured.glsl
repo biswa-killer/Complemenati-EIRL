@@ -146,8 +146,14 @@ void main() {
 			#endif
 
 			float emissive = 0.0;
-			#ifdef COMPBR
-				if (atlasSize.x < 900.0) { // We don't want to detect particles from the block atlas
+			#if defined COMPBR && defined IPBR_PARTICLE_FEATURES
+				#if MC_VERSION >= 12000
+					float atlasCheck = 1100.0;
+				#else
+					float atlasCheck = 900.0;
+				#endif
+
+				if (atlasSize.x < atlasCheck) { // We don't want to detect particles from the block atlas
 					float lAlbedo = length(albedo.rgb);
 					vec3 gamePos = worldPos + cameraPosition;
 
@@ -167,8 +173,13 @@ void main() {
 					else if (max(abs(albedoP.r - albedoP.b), abs(albedoP.b - albedoP.g)) < 0.001) { // Grayscale Particles
 						if (lAlbedo > 0.5 && color.g < 0.5 && color.b > color.r * 1.1 && color.r > 0.3) // Ender Particle, Crying Obsidian Drop
 							emissive = max(pow(albedo.r, 5.0), 0.1);
-						if (lAlbedo > 0.5 && color.g < 0.5 && color.r > (color.g + color.b) * 3.0) // Redstone Particle
+						else if (lAlbedo > 0.5 && color.g < 0.5 && color.r > (color.g + color.b) * 3.0) // Redstone Particle
 							lightmap = vec2(0.0), emissive = max(pow(albedo.r, 5.0), 0.1);
+						else if (color.r > 0.83 && color.g > 0.23 && color.b < 0.4) { // Lava Particles
+							emissive = 2.0;
+							albedo.b *= 0.5;
+							albedo.r *= 1.2;
+						}
 					}
 						
 					//albedo.rgb = vec3(1.0, 0.0, 1.0);
