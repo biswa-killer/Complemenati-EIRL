@@ -67,9 +67,12 @@ uniform sampler2D gaux2;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
-#if defined ADV_MAT && (!defined COMPBR || IPBR_EMISSIVE_MODE != 1)
-	uniform sampler2D specular;
+#ifdef CLOUDS_V5
+	#ifdef V5_CLOUDS_REIMAGINED
+		uniform sampler2D gaux1;
+	#endif
 #endif
+
 #if defined ADV_MAT && defined NORMAL_MAPPING && !defined COMPBR
 	uniform sampler2D normals;
 #endif
@@ -227,6 +230,12 @@ float GetWaterOpacity(float alpha, float difT, float fresnel, float lViewPos) {
 	#include "/lib/atmospherics/skyboxEffects.glsl"
 	#endif
 	#include "/lib/atmospherics/sky.glsl"
+	#ifdef CLOUDS_V5
+		#define V5_CLOUD_REFLECTION
+		#include "/lib/atmospherics/v5clouds/cloudSettingsV5.glsl"
+		#include "/lib/atmospherics/v5clouds/cloudCoordV5.glsl"
+		#include "/lib/atmospherics/v5clouds/mainCloudsV5.glsl"
+	#endif
 #endif
 
 #if defined END && defined ENDER_NEBULA
@@ -252,20 +261,10 @@ float GetWaterOpacity(float alpha, float difT, float fresnel, float lViewPos) {
 	#include "/lib/surface/autoGenNormals.glsl"
 #endif
 
-#if IPBR_EMISSIVE_MODE != 1
-	#include "/lib/surface/customEmission.glsl"
-#endif
-
 //Program//
 void main() {
 	vec4 albedoP = texture2D(texture, texCoord);
-	#ifdef FANCY_GLASS
-		if (albedoP.a == 0.0 && mat > 1.98 && mat < 2.02) {
-			albedoP = vec4(0.75, 0.8, 0.85, 0.10);
-		} else if (albedoP.a == 0.0) discard;
-	#else
-		if (albedoP.a == 0.0) discard;
-	#endif
+	if (albedoP.a == 0.0) discard; //needed for "Create" mod support
     vec4 albedo = albedoP * vec4(color.rgb, 1.0);
 	
 	float emissive = 0.0;
@@ -486,6 +485,7 @@ void main() {
 				difT = (lViewPosT - lViewPos);
 				albedo.a = GetWaterOpacity(albedo.a, difT, fresnel, lViewPos);
 
+				// Water Foam (Complementary V5 algorithm, texel-color threshold path)
 				#if WATER_FOAM_I > 0
 					if (water > 0.5 && dot(normal, upVec) > 0.99) {
 						vec3 matrixM = vec3(
@@ -497,15 +497,12 @@ void main() {
 						vec3 playerPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 						float yPosDif = playerPosTY - playerPos.y;
 
-						// World-locked foam coords (+cameraPosition) + static noise + softer floor:
-						// foam no longer swims/flickers when the camera moves (esp. vertically).
-						// worldPos here is camera-relative, so fract(worldPos.y) was cycling on move.
 						vec3 foamWorldPos = worldPos + cameraPosition;
-						vec2 waterPos = 0.032 * (foamWorldPos.xz + foamWorldPos.y * 2.0);
-						float foamNoise = texture2D(noisetex, waterPos * 4.0).g;
-						float foamThreshold = (foamNoise * foamNoise) * 1.6;
-						float foam = clamp((foamThreshold + yPosDif) / max(foamThreshold, 0.1), 0.0, 1.0);
-						foam *= foam;
+						vec3 colorPM = pow2(albedoP.rgb);
+						float dotColorPM = dot(colorPM, colorPM);
+						float foamThreshold = min(pow2(dotColorPM) * 1.6, 1.2);
+
+						float foam = pow2(clamp((foamThreshold + yPosDif) / foamThreshold, 0.0, 1.0));
 						#ifndef END
 							foam *= 0.4 + 0.25 * lmCoord.y;
 						#else
@@ -550,10 +547,6 @@ void main() {
 			}
 		#endif
 		
-		#if IPBR_EMISSIVE_MODE != 1 && defined COMPBR
-			emissive = GetCustomEmissionForIPBR(texCoord, emissive);
-		#endif
-
 		vec3 shadow = vec3(0.0);
 		vec3 lightAlbedo = vec3(0.0);
 		GetLighting(albedo.rgb, shadow, lightAlbedo, viewPos, lViewPos, worldPos, lightmap, color.a, NdotL, quarterNdotU,
@@ -606,20 +599,6 @@ void main() {
 			fresnel = fresnel4 * 0.95 + 0.05;
 			fresnel *= max(1.0 - isEyeInWater * 0.5 * water, 0.5);
 			fresnel *= 1.0 - translucent * (1.0 - albedo.a);
-
-			if (translucent > 0.5 && water < 0.5) {
-				#ifdef MORE_REFLECTIVE_DISTANT_GLASS
-					float tweakDistance = 192.0;
-					float factor = smoothstep(0.0, tweakDistance, lViewPos);
-					albedo.a = mix(albedo.a, 1.0, factor * 0.75);
-					fresnel = mix(fresnel, 1.0, factor * 0.25);
-				#endif
-
-				float factor2 = smoothstep(1.8, 0.3, lViewPos);
-				fresnel = mix(fresnel, 0.0, factor2);
-				float factor3 = smoothstep(4.0, 0.5, lViewPos);
-				albedo.a = mix(albedo.a, pow2(albedo.a), factor3 * 0.5);
-			}
 
 			#ifdef REFLECTION
 				vec3 refNormal = mix(newNormal, normal, pow2(pow2(fresnel4)));
@@ -683,7 +662,14 @@ void main() {
 							float cloudFactor = 1.0;
 							#ifdef CLOUDS
 								if (isEyeInWater == 0) {
-									vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, cosT, 3);
+									#ifdef CLOUDS_V5
+										float cldV5w = 1.0;
+										vec3 refPlayerPosV5w = mat3(gbufferModelViewInverse) * skyReflectionPos * far;
+										vec4 cloud = GetCloudsV5(cldV5w, 1.0, vec3(0.0), refPlayerPosV5w, skyReflectionPos,
+																far, dot(skyReflectionPos, sunVec), cosT, dither, sunVec);
+									#else
+										vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, cosT, 3);
+									#endif
 									skyReflection = mix(skyReflection, cloud.rgb*skyLightFactor, cloud.a);
 								}
 							#endif
@@ -741,18 +727,7 @@ void main() {
 		}
 
 		if (tintedGlass > 0.5) {
-			#if MIRROR_TINTED_GLASS == 0
-				albedo.a = sqrt1(albedo.a);
-			#elif MIRROR_TINTED_GLASS == 35
-				albedo.a = albedo.a * 0.65 + 0.35;
-				fresnel = fresnel * 0.75 + 0.25;
-			#elif MIRROR_TINTED_GLASS == 70
-				albedo.a = albedo.a * 0.3 + 0.7;
-				fresnel = fresnel * 0.5 + 0.5;
-			#elif MIRROR_TINTED_GLASS == 100
-				albedo.a = 0.99;
-				fresnel = 1.0;
-			#endif
+			albedo.a = sqrt1(albedo.a);
 		}
 
 		vec3 extra = vec3(0.0);
@@ -883,7 +858,7 @@ void main() {
 	
 	mat = 0.0;
 	
-	if (mc_Entity.x == 79 || mc_Entity.x == 10008) mat = 2.0;  // Stained Glass & Regular Glass
+	if (mc_Entity.x == 79)   mat = 2.0;  // Stained Glass
 	if (mc_Entity.x == 7978) mat = 2.25; // Tinted Glass
 	if (mc_Entity.x == 7979) mat = 2.5;  // Ice
 	#if defined COMPBR && FANCY_NETHER_PORTAL > 0

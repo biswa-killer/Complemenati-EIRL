@@ -748,7 +748,7 @@ option.WATER_OPACITY=Water Opacity
 option.WATER_FOG=Underwater Fog Distance
 option.WATER_FOG.comment=Changes the underwater fog amount.
 option.WATER_FOAM_I=Water Foam Intensity
-option.WATER_FOAM_I.comment=Determines the opacity of foam seen on water edges where water meets blocks. Ported from Complementary Reimagined.
+option.WATER_FOAM_I.comment=Determines the opacity of foam seen on water edges. Ported from Complementary V5.
 option.UNDERWATER_R=Underwater Red Reduction
 option.UNDERWATER_G=Underwater Green Reduction
 option.UNDERWATER_B=Underwater Blue Reduction
@@ -927,6 +927,63 @@ option.CLOUD_OPACITY.comment=Adjusts cloud opacity. §c[-]§r Higher values caus
 
 option.CLOUD_BRIGHTNESS=Cloud Brightness
 option.CLOUD_BRIGHTNESS.comment=Adjusts cloud brightness.
+
+screen.CLOUDS_V5=Volumetric Cloud Settings (V5)
+screen.CLOUDS_V5.comment=Settings for the Reimagined/Unbound cloud styles ported from Complementary V5. Only apply when Cloud Style is not V4.
+screen.CLOUDS_V5_COLOR=Cloud Colors
+screen.CLOUDS_V5_SHAPE=Cloud Shape & Details
+screen.CLOUDS_V5_UNBOUND=Unbound Clouds Details
+
+option.CLOUD_STYLE_DEFINE=Cloud Style
+option.CLOUD_STYLE_DEFINE.comment=V4: classic 2D clouds. Reimagined: Complementary volumetric blocky clouds. Unbound: Complementary volumetric fluffy realistic clouds.
+value.CLOUD_STYLE_DEFINE.0=V4 (Classic 2D)
+value.CLOUD_STYLE_DEFINE.1=Reimagined
+value.CLOUD_STYLE_DEFINE.3=Unbound
+
+option.V5_CLOUD_QUALITY_DEFINE=Volumetric Cloud Quality
+option.V5_CLOUD_QUALITY_DEFINE.comment=Raymarch quality for volumetric cloud styles. Higher = smoother, slower.
+
+option.V5_CLOUD_ALT1=Cloud Altitude
+option.V5_CLOUD_ALT1.comment=Altitude of the cloud layer.
+
+option.V5_CLOUD_SPEED_MULT=Cloud Speed
+option.V5_CLOUD_SPEED_MULT.comment=Cloud movement speed. 100 syncs to world time.
+
+option.V5_CLOUD_TRANSPARENCY=Cloud Transparency
+option.V5_CLOUD_TRANSPARENCY.comment=Adjusts cloud opacity and transparency.
+
+option.V5_CLOUD_RENDER_DISTANCE=Cloud Render Distance
+option.V5_CLOUD_RENDER_DISTANCE.comment=Distance multiplier for clouds.
+
+option.V5_CLOUD_R=Cloud Red
+option.V5_CLOUD_G=Cloud Green
+option.V5_CLOUD_B=Cloud Blue
+option.V5_CLOUD_AMBIENT_MULTIPLIER=Cloud Ambient (Day)
+option.V5_CLOUD_NIGHT_AMBIENT_MULTIPLIER=Cloud Ambient (Night)
+option.V5_CLOUD_LIGHT_MULTIPLIER=Cloud Light (Day)
+option.V5_CLOUD_NIGHT_LIGHT_MULTIPLIER=Cloud Light (Night)
+
+option.V5_CLOUD_STRETCH=Cloud Stretch
+option.V5_CLOUD_DIRECTION=Cloud Direction
+option.V5_CLOUD_DIRECTION.comment=1 = West-East, 2 = North-South.
+option.V5_CLOUD_ROUNDNESS=Cloud Roundness
+option.V5_CLOUD_NARROWNESS=Cloud Narrowness
+option.V5_CLOUD_SHADING_AMOUNT=Cloud Shading
+option.V5_CLOUD_SUN_MOON_SHADING=Sun/Moon Shading
+option.V5_CLOUD_SUN_MOON_SHADING.comment=0 = Off, 1 = Moon, 2 = Sun, 3 = Both.
+value.V5_CLOUD_SUN_MOON_SHADING.0=Off
+value.V5_CLOUD_SUN_MOON_SHADING.1=Moon
+value.V5_CLOUD_SUN_MOON_SHADING.2=Sun
+value.V5_CLOUD_SUN_MOON_SHADING.3=Both
+option.V5_REIMAGINED_CLOUDS_OUTLINE=Reimagined Cloud Outline
+option.V5_REIMAGINED_CLOUDS_OUTLINE.comment=Silver-lining outline strength for Reimagined clouds. 0 uses default directional shading.
+
+option.V5_CLOUD_UNBOUND_AMOUNT=Unbound Amount
+option.V5_CLOUD_UNBOUND_RAIN_ADD=Unbound Rain Add
+option.V5_CLOUD_UNBOUND_SIZE_MULT=Unbound Cloud Size
+option.V5_NIGHT_CLOUD_UNBOUND_REMOVE=Unbound Night Removal
+option.V5_PIXELATED_UNBOUND_CLOUDS=Pixelated Unbound Clouds
+option.V5_PIXELATED_UNBOUND_CLOUDS.comment=Voxel/pixel look for Unbound clouds. 0 = off.
 
 option.WATER_TYPE=Water Type
 option.WATER_TYPE.comment=Realistic-ish: Uses the custom color set in the Water Color menu, no texture, has realistic-ish waves. Vanilla-ish: Uses vanilla texture and color, subtle waves. RTX-ish: Uses vanilla texture with more realistic colors, subtle waves. §e[*]§r Waves can be increased in the water wave settings for Vanilla-ish and RTX-ish water types.

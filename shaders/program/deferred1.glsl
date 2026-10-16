@@ -49,9 +49,20 @@ uniform sampler2D depthtex0;
 	uniform sampler2D colortex4;
 #endif
 
-#ifdef AURORA
+#if defined AURORA || defined CLOUDS_V5
 	uniform int moonPhase;
 	#define UNIFORM_moonPhase
+#endif
+
+#ifdef CLOUDS_V5
+	#ifndef V4_DEFERRED1_HAS_CAM_NOISE
+		uniform vec3 cameraPosition;
+		uniform sampler2D noisetex;
+		#define V4_DEFERRED1_HAS_CAM_NOISE
+	#endif
+	#ifdef V5_CLOUDS_REIMAGINED
+		uniform sampler2D gaux1;
+	#endif
 #endif
 
 #if defined ADV_MAT || defined GLOWING_ENTITY_FIX || defined AO
@@ -59,11 +70,14 @@ uniform sampler2D depthtex0;
 #endif
 
 #if (defined ADV_MAT && defined REFLECTION_SPECULAR) || defined SEVEN || (defined END && defined ENDER_NEBULA) || (defined NETHER && defined NETHER_SMOKE)
-	uniform vec3 cameraPosition;
+	#ifndef V4_DEFERRED1_HAS_CAM_NOISE
+		uniform vec3 cameraPosition;
+		uniform sampler2D noisetex;
+		#define V4_DEFERRED1_HAS_CAM_NOISE
+	#endif
 
 	uniform sampler2D colortex6;
 	uniform sampler2D colortex1;
-	uniform sampler2D noisetex;
 #endif
 
 #ifdef AURORA
@@ -200,6 +214,13 @@ vec3 GetVersatileOutline(vec3 color) {
 
 #ifdef OVERWORLD
 	#include "/lib/atmospherics/sky.glsl"
+#endif
+
+#ifdef CLOUDS_V5
+	#define V5_CLOUD_REFLECTION
+	#include "/lib/atmospherics/v5clouds/cloudSettingsV5.glsl"
+	#include "/lib/atmospherics/v5clouds/cloudCoordV5.glsl"
+	#include "/lib/atmospherics/v5clouds/mainCloudsV5.glsl"
 #endif
 
 #if defined SEVEN || (defined ADV_MAT && defined REFLECTION_SPECULAR && defined OVERWORLD) || (defined END && defined ENDER_NEBULA) || (defined NETHER && defined NETHER_SMOKE)
@@ -372,7 +393,14 @@ void main() {
 							skyReflection += DrawAurora(skyReflectionPos, dither, 8, refNdotU);
 						#endif
 						#ifdef CLOUDS
-							vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, refNdotU, 3);
+							#ifdef CLOUDS_V5
+								float cldV5 = 1.0;
+								vec3 refPlayerPosV5 = mat3(gbufferModelViewInverse) * skyReflectionPos * far;
+								vec4 cloud = GetCloudsV5(cldV5, 1.0, vec3(0.0), refPlayerPosV5, skyReflectionPos,
+														far, dot(skyReflectionPos, sunVec), refNdotU, dither, sunVec);
+							#else
+								vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, refNdotU, 3);
+							#endif
 							float cloudMixRate = smoothness * smoothness * (3.0 - 2.0 * smoothness);
 							skyReflection = mix(skyReflection, cloud.rgb, cloud.a * cloudMixRate);
 						#endif
@@ -405,7 +433,14 @@ void main() {
 						skyReflectionPos *= 1000000.0;
 
 						#ifdef CLOUDS
-							vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, refNdotU, 3);
+							#ifdef CLOUDS_V5
+								float cldV5 = 1.0;
+								vec3 refPlayerPosV5 = mat3(gbufferModelViewInverse) * skyReflectionPos * far;
+								vec4 cloud = GetCloudsV5(cldV5, 1.0, vec3(0.0), refPlayerPosV5, skyReflectionPos,
+														far, dot(skyReflectionPos, sunVec), refNdotU, dither, sunVec);
+							#else
+								vec4 cloud = DrawCloud(skyReflectionPos, dither, lightCol, ambientCol, refNdotU, 3);
+							#endif
 							float cloudMixRate = smoothness * smoothness * (3.0 - 2.0 * smoothness);
 							skyReflection = mix(skyReflection, cloud.rgb, cloud.a * cloudMixRate);
 						#endif

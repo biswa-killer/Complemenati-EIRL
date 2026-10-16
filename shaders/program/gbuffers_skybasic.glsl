@@ -29,6 +29,7 @@ uniform float rainStrengthS;
 uniform float screenBrightness; 
 uniform float viewWidth, viewHeight;
 uniform float eyeAltitude;
+uniform float far;
 
 uniform ivec2 eyeBrightnessSmooth;
 
@@ -47,6 +48,10 @@ uniform sampler2D noisetex;
 	uniform sampler2D gaux4;
 #endif
 
+#ifdef V5_CLOUDS_REIMAGINED
+	uniform sampler2D gaux1;
+#endif
+
 #ifdef AURORA
 	uniform float isDry, isRainy, isSnowy;
 #endif
@@ -59,8 +64,10 @@ uniform sampler2D noisetex;
 #if WORLD_TIME_ANIMATION >= 1
 	int modifiedWorldDay = int(mod(worldDay, 100.0) + 5.0);
 	float frametime = (worldTime + modifiedWorldDay * 24000) * 0.05 * ANIMATION_SPEED;
+	float cloudtime = frametime;
 #else
 	float frametime = frameTimeCounter * ANIMATION_SPEED;
+	float cloudtime = frametime;
 #endif
 
 float eBS = eyeBrightnessSmooth.y / 240.0;
@@ -180,7 +187,13 @@ vec3 GetGalaxy(vec3 viewPos, float NdotU, float cosS, vec3 lightNight) {
 #if (defined CLOUDS || defined AURORA) && defined OVERWORLD
 #include "/lib/atmospherics/skyboxEffects.glsl"
 #endif
+#include "/lib/util/spaceConversion.glsl"
 #include "/lib/atmospherics/sky.glsl"
+#ifdef CLOUDS_V5
+#include "/lib/atmospherics/v5clouds/cloudSettingsV5.glsl"
+#include "/lib/atmospherics/v5clouds/cloudCoordV5.glsl"
+#include "/lib/atmospherics/v5clouds/mainCloudsV5.glsl"
+#endif
 #define ALLOW_BLOOD_MOON_GLARE // enable Blood Moon tint in the sky glare (skybasic has worldDay/moonPhase)
 #include "/lib/atmospherics/sunGlare.glsl"
 
@@ -195,20 +208,28 @@ void main() {
 	vec3 nViewPos = normalize(viewPos.xyz);
 
 	float NdotU = dot(nViewPos, upVec);
-	
+	float cosS = dot(nViewPos, sunVec);
+
 	#ifdef OVERWORLD
 		#if defined CLOUDS || defined AURORA
 			float dither = Bayer64(gl_FragCoord.xy);
 		#endif
 		#ifdef CLOUDS
-			vec4 cloud = DrawCloud(viewPos.xyz * 1000000.0, dither, lightCol, ambientCol, NdotU, 6);
-			float cloudMaskR = cloud.a / CLOUD_OPACITY;
-			if (NdotU > 0.025) cloudMaskR /= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634
+			#if defined CLOUDS_V5
+				float cloudLinearDepthV5 = 1.0;
+				vec3 playerPosV5 = mat3(gbufferModelViewInverse) * nViewPos * far;
+				vec4 cloud = GetCloudsV5(cloudLinearDepthV5, 1.0, vec3(0.0), playerPosV5, viewPos.xyz,
+										far, cosS, NdotU, dither, sunVec);
+				float cloudMaskR = cloud.a;
+				if (NdotU > 0.025) cloudMaskR /= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634
+			#else
+				vec4 cloud = DrawCloud(viewPos.xyz * 1000000.0, dither, lightCol, ambientCol, NdotU, 6);
+				float cloudMaskR = cloud.a / CLOUD_OPACITY;
+				if (NdotU > 0.025) cloudMaskR /= pow2(pow2(1.0 - exp(- (10.0 - 8.2 * rainStrengthS) * NdotU))); //duplicate 78634
+			#endif
 		#endif
-		
+
 		albedo = GetSkyColor(lightCol, NdotU, nViewPos, false);
-		
-		float cosS = dot(nViewPos, sunVec);
 
 		vec3 galaxy = GetGalaxy(viewPos.xyz, NdotU, cosS, lightNight);
 		#ifdef CLOUDS
